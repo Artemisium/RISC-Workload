@@ -405,10 +405,11 @@ const RESPONSIVE_CSS = `
     .risc-container { padding: 20px 24px !important; }
     .risc-header { flex-direction: row !important; align-items: center !important; justify-content: space-between !important; }
     .member-row { flex-direction: row !important; align-items: flex-start !important; }
-    .member-rush { width: 240px !important; flex-shrink: 0 !important; position: sticky !important; top: 20px !important; }
+    .member-main { flex: 0 1 55% !important; }
+    .member-rush { flex: 1 1 0 !important; min-width: 260px !important; flex-shrink: 0 !important; position: sticky !important; top: 20px !important; }
   }
   @media (min-width: 1200px) {
-    .member-rush { width: 280px !important; }
+    .member-main { flex: 0 1 52% !important; }
   }
 `;
 
