@@ -129,7 +129,11 @@ export default function RISCWorkload() {
       const teamCol = findColIndex(headers, ["team", "assign", "member", "initials", "processor", "analyst"], exclude);
       const typeCol = findColIndex(headers, ["type", "loan type", "loantype", "product"], exclude);
       const dateCol = findColIndex(headers, ["fund", "funding", "close", "closing", "fundingdate", "closedate"], exclude);
-      const nameCol = findColIndex(headers, ["borrower", "name", "client", "deal", "project"], exclude);
+      const nameCol = findColIndex(headers, ["borrowername", "borrower"], exclude);
+      // Find "Lender Client Lead" first (more specific), exclude it, then find the actual "Lender" column
+      const lclCol = findColIndex(headers, ["clientlead", "lenderclient", "lenderlead"], exclude);
+      const excludeLC = lclCol !== -1 ? [...exclude, lclCol] : exclude;
+      const lenderCol = findColIndex(headers, ["lendername", "lender", "bank", "institution"], excludeLC);
       const amountCol = findColIndex(headers, ["amount", "loan amount", "value", "principal", "size"], exclude);
       const checkInCol = findColIndex(headers, ["check in", "checkin", "next check", "nextcheck"], exclude);
       const statusCol = findColIndex(headers, ["status"], exclude);
@@ -154,11 +158,12 @@ export default function RISCWorkload() {
         const amount = amountCol !== -1 ? row[amountCol] : null;
         const checkInDate = checkInCol !== -1 ? parseExcelDate(row[checkInCol]) : null;
         const address = addressCol !== -1 ? String(row[addressCol] || "") : "";
+        const lender = lenderCol !== -1 ? String(row[lenderCol] || "") : "";
         parsed.push({
           member, loanType: rawType, group: classifyLoan(rawType),
           fundDate, fundDateKey: statusOpen ? (fundDate ? dateKey(fundDate) : null) : null,
           checkInDate, checkInDateKey: checkInDate ? dateKey(checkInDate) : null,
-          pmOpen, statusOpen, status, borrower, address,
+          pmOpen, statusOpen, status, borrower, address, lender,
           amount: typeof amount === "number" ? amount : parseFloat(String(amount).replace(/[^0-9.-]/g, "")) || 0,
         });
       }
@@ -363,6 +368,7 @@ export default function RISCWorkload() {
                           <div style={S.rushItemTop}>
                             <span style={{ ...S.rushDot, background: GROUP_COLORS[l.group].badge }} />
                             <span style={S.rushBorrower}>{l.borrower || "—"}</span>
+                            {l.lender && <span style={S.rushLender}>{l.lender}</span>}
                           </div>
                           {l.address && <div style={S.rushAddress}>{l.address}</div>}
                           <div style={S.rushMeta}>
@@ -473,6 +479,7 @@ const S = {
   rushItemTop: { display: "flex", alignItems: "center", gap: 5, marginBottom: 2 },
   rushDot: { width: 6, height: 6, borderRadius: "50%", flexShrink: 0 },
   rushBorrower: { fontSize: 12, fontWeight: 700, color: "#111", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
+  rushLender: { fontSize: 10, color: "#999", fontWeight: 500, flex: "0 0 auto", marginLeft: 4 },
   rushAddress: { fontSize: 10, color: "#777", marginLeft: 11, marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
   rushMeta: { display: "flex", alignItems: "center", gap: 5, marginLeft: 11 },
   rushDate: { fontSize: 10, fontWeight: 600, color: "#444" },
