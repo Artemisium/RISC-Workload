@@ -103,7 +103,6 @@ export default function RISCWorkload() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [expandedMember, setExpandedMember] = useState(null);
-  const [debugInfo, setDebugInfo] = useState(null);
 
   const processFile = useCallback(async (file) => {
     setLoading(true);
@@ -131,10 +130,11 @@ export default function RISCWorkload() {
       const typeCol = findColIndex(headers, ["type", "loan type", "loantype", "product"], exclude);
       const dateCol = findColIndex(headers, ["fund", "funding", "close", "closing", "fundingdate", "closedate"], exclude);
       const nameCol = findColIndex(headers, ["borrowername", "borrower"], exclude);
-      // Find "Lender Client Lead" first (more specific), exclude it, then find the actual "Lender" column
-      const lclCol = findColIndex(headers, ["clientlead", "lenderclient", "lenderlead"], exclude);
-      const excludeLC = lclCol !== -1 ? [...exclude, lclCol] : exclude;
-      const lenderCol = findColIndex(headers, ["lendername", "lender", "bank", "institution"], excludeLC);
+      const lenderCol = headers.findIndex((h, i) => {
+        if (exclude.includes(i)) return false;
+        const stripped = h.toLowerCase().replace(/[^a-z0-9]/g, "");
+        return stripped === "client" || stripped === "lender" || stripped === "lendername";
+      });
       const amountCol = findColIndex(headers, ["amount", "loan amount", "value", "principal", "size"], exclude);
       const checkInCol = findColIndex(headers, ["check in", "checkin", "next check", "nextcheck"], exclude);
       const statusCol = findColIndex(headers, ["status"], exclude);
@@ -142,9 +142,6 @@ export default function RISCWorkload() {
 
       if (teamCol === -1) throw new Error("Could not find a Team/Assigned column");
       if (typeCol === -1) throw new Error("Could not find a Loan Type column");
-
-      const colMap = { teamCol, typeCol, dateCol, nameCol, lclCol, lenderCol, amountCol, checkInCol, statusCol, addressCol, pmStatusCol };
-      setDebugInfo({ headers: headers.map((h, i) => `[${i}] ${h}`), colMap });
 
       const parsed = [];
       for (let i = 1; i < rows.length; i++) {
@@ -256,16 +253,6 @@ export default function RISCWorkload() {
         </div>
       </div>
       {error && <p style={S.errorText}>{error}</p>}
-
-      {debugInfo && (
-        <details style={{ marginBottom: 12, fontSize: 11, color: "#666", background: "#fff", border: "1px solid #ddd", borderRadius: 6, padding: 8 }}>
-          <summary style={{ cursor: "pointer", fontWeight: 700 }}>Debug: Column Detection</summary>
-          <div style={{ marginTop: 6 }}>
-            <div><b>Headers:</b> {debugInfo.headers.join(" | ")}</div>
-            <div style={{ marginTop: 4 }}><b>Detected:</b> {Object.entries(debugInfo.colMap).map(([k, v]) => `${k}=${v}`).join(", ")}</div>
-          </div>
-        </details>
-      )}
 
       <div style={S.memberList}>
         {memberData.map(({ member, counts, pmCount, total, dailyMap, rushLoans, loans: memberLoans }) => {
