@@ -103,6 +103,7 @@ export default function RISCWorkload() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [expandedMember, setExpandedMember] = useState(null);
+  const [debugInfo, setDebugInfo] = useState(null);
 
   const processFile = useCallback(async (file) => {
     setLoading(true);
@@ -141,6 +142,9 @@ export default function RISCWorkload() {
 
       if (teamCol === -1) throw new Error("Could not find a Team/Assigned column");
       if (typeCol === -1) throw new Error("Could not find a Loan Type column");
+
+      const colMap = { teamCol, typeCol, dateCol, nameCol, lclCol, lenderCol, amountCol, checkInCol, statusCol, addressCol, pmStatusCol };
+      setDebugInfo({ headers: headers.map((h, i) => `[${i}] ${h}`), colMap });
 
       const parsed = [];
       for (let i = 1; i < rows.length; i++) {
@@ -252,6 +256,16 @@ export default function RISCWorkload() {
         </div>
       </div>
       {error && <p style={S.errorText}>{error}</p>}
+
+      {debugInfo && (
+        <details style={{ marginBottom: 12, fontSize: 11, color: "#666", background: "#fff", border: "1px solid #ddd", borderRadius: 6, padding: 8 }}>
+          <summary style={{ cursor: "pointer", fontWeight: 700 }}>Debug: Column Detection</summary>
+          <div style={{ marginTop: 6 }}>
+            <div><b>Headers:</b> {debugInfo.headers.join(" | ")}</div>
+            <div style={{ marginTop: 4 }}><b>Detected:</b> {Object.entries(debugInfo.colMap).map(([k, v]) => `${k}=${v}`).join(", ")}</div>
+          </div>
+        </details>
+      )}
 
       <div style={S.memberList}>
         {memberData.map(({ member, counts, pmCount, total, dailyMap, rushLoans, loans: memberLoans }) => {
