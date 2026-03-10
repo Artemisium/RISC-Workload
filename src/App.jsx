@@ -369,7 +369,6 @@ export default function RISCWorkload() {
                           <div style={S.rushItemTop}>
                             <span style={{ ...S.rushDot, background: GROUP_COLORS[l.group].badge }} />
                             <span style={S.rushBorrower}>{l.borrower || "—"}</span>
-                            {l.lender && <span style={S.rushLender}>{l.lender}</span>}
                           </div>
                           {l.address && <div style={S.rushAddress}>{l.address}</div>}
                           <div style={S.rushMeta}>
@@ -381,6 +380,7 @@ export default function RISCWorkload() {
                             }}>
                               {bd === 0 ? "TODAY" : bd === 1 ? "1 day" : `${bd} days`}
                             </span>
+                            {l.lender && <span style={S.rushLender}>{l.lender}</span>}
                           </div>
                         </div>
                       );
@@ -481,7 +481,7 @@ const S = {
   rushItemTop: { display: "flex", alignItems: "center", gap: 5, marginBottom: 2 },
   rushDot: { width: 6, height: 6, borderRadius: "50%", flexShrink: 0 },
   rushBorrower: { fontSize: 12, fontWeight: 700, color: "#111", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
-  rushLender: { fontSize: 10, color: "#999", fontWeight: 500, flex: "0 0 auto", marginLeft: 4 },
+  rushLender: { fontSize: 10, color: "#999", fontWeight: 500, marginLeft: "auto" },
   rushAddress: { fontSize: 10, color: "#777", marginLeft: 11, marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
   rushMeta: { display: "flex", alignItems: "center", gap: 5, marginLeft: 11 },
   rushDate: { fontSize: 10, fontWeight: 600, color: "#444" },
